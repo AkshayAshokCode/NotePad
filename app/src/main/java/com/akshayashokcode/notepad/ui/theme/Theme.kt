@@ -16,14 +16,30 @@ private val DarkColorPalette = darkColors(
     onSurface = DarkGray
 )
 
+private val LightColorPalette = lightColors(
+    primary = LightGray,
+    background = LightBlue,
+    onBackground = Color.Black,
+    surface = Color.White,
+    onSurface = Color.Black
+)
 @Composable
 fun NotePadTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    rememberSystemUiController().setSystemBarsColor(
-        color = Color.Transparent
-    )
+    val colors=if(darkTheme){
+        rememberSystemUiController().setSystemBarsColor(
+            color = Color.Transparent
+        )
+        DarkColorPalette
+    }else{
+        rememberSystemUiController().setSystemBarsColor(
+            color = Color.White
+        )
+        LightColorPalette
+    }
+
 
     MaterialTheme(
-        colors = DarkColorPalette,
+        colors = colors,
         typography = Typography,
         shapes = Shapes,
         content = content
