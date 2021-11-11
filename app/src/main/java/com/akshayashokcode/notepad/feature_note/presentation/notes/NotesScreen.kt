@@ -36,7 +36,7 @@ fun NotesScreen(
     val state = viewModel.state.value
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    Log.d("NoteScreen",state.notes.size.toString())
+
     val notesAvailable= state.notes.isNotEmpty()
     Scaffold(
         floatingActionButton = {
