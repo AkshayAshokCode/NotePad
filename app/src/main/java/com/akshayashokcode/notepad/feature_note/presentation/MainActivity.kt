@@ -29,53 +29,57 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val REQUEST_CODE = 11
     private lateinit var appUpdateManager: AppUpdateManager
+
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appUpdateManager= AppUpdateManagerFactory.create(this)
+        appUpdateManager = AppUpdateManagerFactory.create(this)
         setContent {
             NotePadTheme {
-                Surface(
-                    color = MaterialTheme.colors.background
-                ) {
-                    val navController = rememberNavController()
-                    NavHost(
-                        navController = navController,
-                        startDestination = Screen.NotesScreen.route
-                    ) {
-                        composable(route = Screen.NotesScreen.route) {
-                            NotesScreen(navController = navController)
-                        }
-                        composable(route = Screen.AddEditNoteScreen.route +
-                                "?noteId={noteId}&noteColor={noteColor}",
-                            arguments = listOf(
-                                navArgument(
-                                    name = "noteId"
-                                ) {
-                                    type = NavType.IntType
-                                    defaultValue = -1
-                                },
-                                navArgument(
-                                    name = "noteColor"
-                                ) {
-                                    type = NavType.IntType
-                                    defaultValue = -1
-                                }
-                            )
-
+                    Surface(
+                        color = MaterialTheme.colors.background
+                    )
+                    {
+                        val navController = rememberNavController()
+                        NavHost(
+                            navController = navController,
+                            startDestination = Screen.NotesScreen.route
                         ) {
-                            val color = it.arguments?.getInt("noteColor") ?: -1
-                            AddEditNoteScreen(
-                                navController = navController,
-                                noteColor = color
-                            )
+                            composable(route = Screen.NotesScreen.route) {
+                                NotesScreen(navController = navController)
+                            }
+                            composable(route = Screen.AddEditNoteScreen.route +
+                                    "?noteId={noteId}&noteColor={noteColor}",
+                                arguments = listOf(
+                                    navArgument(
+                                        name = "noteId"
+                                    ) {
+                                        type = NavType.IntType
+                                        defaultValue = -1
+                                    },
+                                    navArgument(
+                                        name = "noteColor"
+                                    ) {
+                                        type = NavType.IntType
+                                        defaultValue = -1
+                                    }
+                                )
+
+                            ) {
+                                val color = it.arguments?.getInt("noteColor") ?: -1
+                                AddEditNoteScreen(
+                                    navController = navController,
+                                    noteColor = color
+                                )
+                            }
                         }
                     }
-                }
+
             }
         }
         checkUpdate()
     }
+
     private fun checkUpdate() {
         // Returns an intent object that you use to check for an update.
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo

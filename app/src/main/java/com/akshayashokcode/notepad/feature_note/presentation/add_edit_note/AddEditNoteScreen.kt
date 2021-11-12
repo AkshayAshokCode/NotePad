@@ -131,7 +131,6 @@ fun AddEditNoteScreen(
                 textStyle = MaterialTheme.typography.h5
             )
             Spacer(modifier = Modifier.height(16.dp))
-
             TransparentHintTextFiledContent(
                 text = contentState.text,
                 hint =contentState.hint,
@@ -145,7 +144,6 @@ fun AddEditNoteScreen(
                 textStyle = MaterialTheme.typography.body1,
                 modifier = Modifier.fillMaxHeight()
             )
-
         }
     }
 }
