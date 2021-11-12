@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.akshayashokcode.notepad.feature_note.presentation.add_edit_note.AddEditNoteScreen
+import com.akshayashokcode.notepad.feature_note.presentation.add_edit_note.components.AppKeyboardFocusManager
 import com.akshayashokcode.notepad.feature_note.presentation.notes.NotesScreen
 import com.akshayashokcode.notepad.feature_note.presentation.util.Screen
 import com.akshayashokcode.notepad.ui.theme.NotePadTheme
@@ -35,6 +36,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         appUpdateManager = AppUpdateManagerFactory.create(this)
         setContent {
+            AppKeyboardFocusManager()
             NotePadTheme {
                     Surface(
                         color = MaterialTheme.colors.background
