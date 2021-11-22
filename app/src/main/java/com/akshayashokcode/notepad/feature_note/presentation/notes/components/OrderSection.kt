@@ -1,9 +1,11 @@
 package com.akshayashokcode.notepad.feature_note.presentation.notes.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.akshayashokcode.notepad.feature_note.domain.util.NoteOrder
 import com.akshayashokcode.notepad.feature_note.domain.util.OrderType
 
@@ -20,6 +22,8 @@ fun OrderSection(
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
+            Text(text = "Sort by:",fontSize = 16.sp)
+            Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(
                 text = "Title",
                 selected = noteOrder is NoteOrder.Title,
@@ -44,13 +48,13 @@ fun OrderSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             DefaultRadioButton(
-                text = "Ascending",
+                text = "Ascending↓",
                 selected = noteOrder.orderType is OrderType.Ascending   ,
                 onSelect = {onOrderChange(noteOrder.copy(OrderType.Ascending))}
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(
-                text = "Descending",
+                text = "Descending↑",
                 selected = noteOrder.orderType is OrderType.Descending   ,
                 onSelect = {onOrderChange(noteOrder.copy(OrderType.Descending))}
             )
