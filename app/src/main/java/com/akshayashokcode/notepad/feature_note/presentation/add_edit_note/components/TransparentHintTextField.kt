@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 
@@ -24,6 +25,7 @@ fun TransparentHintTextFiled(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
+    testTag:String="",
     onFocusChange: (FocusState) -> Unit
 ) {
     Box(modifier = modifier) {
@@ -34,6 +36,7 @@ fun TransparentHintTextFiled(
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier
+                .testTag(testTag)
                 .fillMaxWidth()
                 .onFocusChanged { onFocusChange(it) }
         )
@@ -52,6 +55,7 @@ fun TransparentHintTextFiledContent(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
+    testTag:String="",
     onFocusChange: (FocusState) -> Unit
 ) {
     Box(modifier = modifier) {
@@ -62,6 +66,7 @@ fun TransparentHintTextFiledContent(
             textStyle = textStyle,
             keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier
+                .testTag(testTag)
                 .fillMaxSize()
                 .onFocusChanged { onFocusChange(it) }
         )

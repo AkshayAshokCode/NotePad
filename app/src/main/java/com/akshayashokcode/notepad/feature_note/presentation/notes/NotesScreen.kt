@@ -13,10 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.akshayashokcode.notepad.core.util.TestTags
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.EmptyScreenText
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.NoteItem
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.OrderSection
@@ -43,7 +45,7 @@ fun NotesScreen(
                 },
                 backgroundColor = MaterialTheme.colors.primary
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add note")
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
             }
         },
         scaffoldState = scaffoldState,
@@ -82,7 +84,7 @@ fun NotesScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Sort,
-                            contentDescription = "Sort"
+                            contentDescription = "Sort",
                         )
                     }
                 }
@@ -95,7 +97,8 @@ fun NotesScreen(
                 OrderSection(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
+                        .padding(vertical = 16.dp)
+                        .testTag(TestTags.ORDER_SECTION),
                     noteOrder = state.noteOrder,
                     onOrderChange = {
                         viewModel.onEvent(NotesEvent.Order(it))
