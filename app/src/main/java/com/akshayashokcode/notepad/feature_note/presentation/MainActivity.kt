@@ -2,6 +2,7 @@ package com.akshayashokcode.notepad.feature_note.presentation
 
 import android.content.IntentSender
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -24,13 +25,14 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.tasks.OnFailureListener
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val REQUEST_CODE = 11
     private lateinit var appUpdateManager: AppUpdateManager
-
+    private val TAG="MainActivity"
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,8 +107,18 @@ class MainActivity : ComponentActivity() {
                 } catch (e: IntentSender.SendIntentException) {
                     e.printStackTrace()
                 }
+            }else{
+                Log.d(TAG,"Update Status Not available:${appUpdateInfo.updateAvailability()}")
             }
         }
+        appUpdateInfoTask.addOnFailureListener { appUpdateInfo ->
+            Log.d(TAG, "appUpdateInfoTask.addOnFailureListener: ${appUpdateInfo.localizedMessage}")
+        }
+        appUpdateInfoTask.addOnCompleteListener { appUpdateInfo ->
+            Log.d(TAG,"appUpdateInfoTask.addOnCompleteListener: ${appUpdateInfo.result}")
+            Log.d(TAG,"appUpdateInfoTask.addOnCompleteListener: ${appUpdateInfo.isComplete}")
+        }
+
     }
 }
 
