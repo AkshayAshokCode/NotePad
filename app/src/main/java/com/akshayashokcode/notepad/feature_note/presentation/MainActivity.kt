@@ -111,14 +111,6 @@ class MainActivity : ComponentActivity() {
                 Log.d(TAG,"Update Status Not available:${appUpdateInfo.updateAvailability()}")
             }
         }
-        appUpdateInfoTask.addOnFailureListener { appUpdateInfo ->
-            Log.d(TAG, "appUpdateInfoTask.addOnFailureListener: ${appUpdateInfo.localizedMessage}")
-        }
-        appUpdateInfoTask.addOnCompleteListener { appUpdateInfo ->
-            Log.d(TAG,"appUpdateInfoTask.addOnCompleteListener: ${appUpdateInfo.result}")
-            Log.d(TAG,"appUpdateInfoTask.addOnCompleteListener: ${appUpdateInfo.isComplete}")
-        }
-
     }
 }
 
