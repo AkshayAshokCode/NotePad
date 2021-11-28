@@ -1,10 +1,12 @@
 package com.akshayashokcode.notepad.feature_note.presentation
 
+import android.content.Intent
 import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.Nullable
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -25,14 +27,19 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.android.play.core.tasks.OnFailureListener
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val REQUEST_CODE = 11
     private lateinit var appUpdateManager: AppUpdateManager
     private val TAG="MainActivity"
+
+    override fun onStart() {
+        super.onStart()
+        checkUpdate()
+    }
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,9 +88,7 @@ class MainActivity : ComponentActivity() {
 
             }
         }
-        checkUpdate()
     }
-
     private fun checkUpdate() {
         // Returns an intent object that you use to check for an update.
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
@@ -109,6 +114,16 @@ class MainActivity : ComponentActivity() {
                 }
             }else{
                 Log.d(TAG,"Update Status Not available:${appUpdateInfo.updateAvailability()}")
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, @Nullable data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE) {
+            Log.d(TAG, "onActivityResult: Updated to Latest Features")
+            if (resultCode != RESULT_OK) {
+                Log.e(TAG, "onActivityResult: app download failed")
             }
         }
     }
