@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appUpdateManager = AppUpdateManagerFactory.create(this)
         setContent {
             AppKeyboardFocusManager()
             NotePadTheme {
@@ -91,6 +90,7 @@ class MainActivity : ComponentActivity() {
     }
     private fun checkUpdate() {
         // Returns an intent object that you use to check for an update.
+        appUpdateManager = AppUpdateManagerFactory.create(this)
         val appUpdateInfoTask = appUpdateManager.appUpdateInfo
         // Checks that the platform will allow the specified type of update.
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
