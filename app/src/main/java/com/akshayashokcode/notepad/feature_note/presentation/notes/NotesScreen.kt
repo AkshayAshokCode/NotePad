@@ -1,6 +1,9 @@
 package com.akshayashokcode.notepad.feature_note.presentation.notes
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,11 +13,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -35,17 +42,25 @@ fun NotesScreen(
     val state = viewModel.state.value
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-
-    val notesAvailable= state.notes.isNotEmpty()
+    val animVisibleState = remember { MutableTransitionState(false) }
+        .apply { targetState = true }
+    val notesAvailable = state.notes.isNotEmpty()
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate(Screen.AddEditNoteScreen.route)
-                },
-                backgroundColor = MaterialTheme.colors.primary
+            AnimatedVisibility(
+                visibleState = animVisibleState,
+                enter = fadeIn(
+                    animationSpec = tween(durationMillis = 500,easing = LinearOutSlowInEasing))
+                        + slideInVertically(animationSpec = tween(durationMillis = 500))
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(Screen.AddEditNoteScreen.route)
+                    },
+                    backgroundColor = MaterialTheme.colors.primary
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                }
             }
         },
         scaffoldState = scaffoldState,
@@ -70,8 +85,11 @@ fun NotesScreen(
             ) {
                 Text(
                     text = "Notes",
-                    style = TextStyle(color=MaterialTheme.typography.h4.color,fontStyle = MaterialTheme.typography.h4.fontStyle,
-                        fontSize = MaterialTheme.typography.h4.fontSize,fontWeight = MaterialTheme.typography.h4.fontWeight,
+                    style = TextStyle(
+                        color = MaterialTheme.typography.h4.color,
+                        fontStyle = MaterialTheme.typography.h4.fontStyle,
+                        fontSize = MaterialTheme.typography.h4.fontSize,
+                        fontWeight = MaterialTheme.typography.h4.fontWeight,
                         fontFamily = customTypography.body1.fontFamily
                     )
                 )
@@ -137,7 +155,7 @@ fun NotesScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-            }else{
+            } else {
                 EmptyScreenText()
             }
         }
