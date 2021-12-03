@@ -48,7 +48,22 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         checkUpdate()
     }
-
+    override fun onResume() {
+        super.onResume()
+        if (appUpdateManager != null) {
+            appUpdateManager
+                .appUpdateInfo
+                .addOnSuccessListener { appUpdateInfo ->
+                    // If the update is downloaded but not installed,
+                    // notify the user to complete the update.
+                    if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                        popupSnackbarForCompleteUpdate()
+                    }else{
+                        Log.d(TAG,"State of update: ${appUpdateInfo.installStatus()}")
+                    }
+                }
+        }
+    }
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
