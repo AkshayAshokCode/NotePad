@@ -8,10 +8,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.Nullable
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,71 +27,77 @@ import com.akshayashokcode.notepad.feature_note.presentation.add_edit_note.compo
 import com.akshayashokcode.notepad.feature_note.presentation.notes.NotesScreen
 import com.akshayashokcode.notepad.feature_note.presentation.util.Screen
 import com.akshayashokcode.notepad.ui.theme.NotePadTheme
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val REQUEST_CODE = 11
     private lateinit var appUpdateManager: AppUpdateManager
-    private val TAG="MainActivity"
+    private val TAG = "MainActivity"
 
     override fun onStart() {
         super.onStart()
         checkUpdate()
     }
+
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             AppKeyboardFocusManager()
             NotePadTheme {
-                    Surface(
-                        color = MaterialTheme.colors.background
-                    )
-                    {
-                        val navController = rememberNavController()
-                        NavHost(
-                            navController = navController,
-                            startDestination = Screen.NotesScreen.route
-                        ) {
-                            composable(route = Screen.NotesScreen.route) {
-                                NotesScreen(navController = navController)
-                            }
-                            composable(route = Screen.AddEditNoteScreen.route +
-                                    "?noteId={noteId}&noteColor={noteColor}",
-                                arguments = listOf(
-                                    navArgument(
-                                        name = "noteId"
-                                    ) {
-                                        type = NavType.IntType
-                                        defaultValue = -1
-                                    },
-                                    navArgument(
-                                        name = "noteColor"
-                                    ) {
-                                        type = NavType.IntType
-                                        defaultValue = -1
-                                    }
-                                )
+                Surface(
+                    color = MaterialTheme.colors.background
+                )
+                {
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.NotesScreen.route
+                    ) {
+                        composable(route = Screen.NotesScreen.route) {
+                            NotesScreen(navController = navController)
+                        }
+                        composable(route = Screen.AddEditNoteScreen.route +
+                                "?noteId={noteId}&noteColor={noteColor}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "noteId"
+                                ) {
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                },
+                                navArgument(
+                                    name = "noteColor"
+                                ) {
+                                    type = NavType.IntType
+                                    defaultValue = -1
+                                }
+                            )
 
-                            ) {
-                                val color = it.arguments?.getInt("noteColor") ?: -1
-                                AddEditNoteScreen(
-                                    navController = navController,
-                                    noteColor = color
-                                )
-                            }
+                        ) {
+                            val color = it.arguments?.getInt("noteColor") ?: -1
+                            AddEditNoteScreen(
+                                navController = navController,
+                                noteColor = color
+                            )
                         }
                     }
+                }
 
             }
         }
     }
+
     private fun checkUpdate() {
         // Returns an intent object that you use to check for an update.
         appUpdateManager = AppUpdateManagerFactory.create(this)
@@ -112,9 +122,33 @@ class MainActivity : ComponentActivity() {
                 } catch (e: IntentSender.SendIntentException) {
                     e.printStackTrace()
                 }
-            }else{
-                Log.d(TAG,"Update Status Not available:${appUpdateInfo.updateAvailability()}")
+            } else {
+                Log.d(TAG, "Update Status Not available:${appUpdateInfo.updateAvailability()}")
             }
+        }
+        appUpdateManager.registerListener(listener)
+    }
+
+    // Create a listener to track request state updates.
+    private val listener = InstallStateUpdatedListener { state ->
+        if (state.installStatus() == InstallStatus.DOWNLOADED) {
+            // After the update is downloaded, show a notification
+            // and request user confirmation to restart the app.
+            popupSnackbarForCompleteUpdate()
+        }
+        // Log state or install the update.
+        Log.d(TAG, "State of update: ${state.installStatus()}")
+    }
+
+    // Displays the snackbar notification and call to action.
+    private fun popupSnackbarForCompleteUpdate() {
+        Snackbar.make(
+            findViewById(android.R.id.content),
+            "An update has just been downloaded.",
+            Snackbar.LENGTH_INDEFINITE
+        ).apply {
+            setAction("RESTART") { appUpdateManager.completeUpdate() }
+            show()
         }
     }
 
@@ -127,17 +161,11 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    NotePadTheme {
-        Greeting("Android")
+    override fun onStop() {
+        if (appUpdateManager != null) {
+            appUpdateManager.unregisterListener(listener)
+        }
+        super.onStop()
     }
 }
