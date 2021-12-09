@@ -9,7 +9,7 @@ Built with Kotlin using Room DB, Coroutines, Dagger Hilt, Canvas, and following 
 
 <a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot1.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
 <a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot2.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
-<a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot3.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
+<a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot3.png" height="500"></a>
 <a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot4.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
 <a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot5.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
 
