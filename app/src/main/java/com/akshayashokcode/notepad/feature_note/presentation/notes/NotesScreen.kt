@@ -76,7 +76,7 @@ fun NotesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(top = 16.dp,start = 16.dp,end = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -153,7 +153,11 @@ fun NotesScreen(
                             }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
+                        if(state.notes.last() == note) {
+                            Spacer(modifier = Modifier.height(60.dp))
+                        }
                     }
+
                 }
             } else {
                 EmptyScreenText()
