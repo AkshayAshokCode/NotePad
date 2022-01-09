@@ -21,3 +21,4 @@ Built with Kotlin using Room DB, Coroutines, Dagger Hilt, LiveData, Canvas, and 
 <a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot4.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
 <a><img src="https://github.com/AkshayAshokCode/NotePad/blob/master/screenshots/screenshot5.png" height="500"></a> &nbsp;&nbsp;&nbsp;&nbsp;
 
+*You can Install the latest NotePad app from here 👉* [<img align=center src="https://www.logo.wine/a/logo/Google_Play/Google_Play-Badge-Logo.wine.svg" width="200" />](https://play.google.com/store/apps/details?id=com.akshayashokcode.notepad)
