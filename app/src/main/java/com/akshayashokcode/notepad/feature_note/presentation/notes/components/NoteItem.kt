@@ -1,5 +1,6 @@
 package com.akshayashokcode.notepad.feature_note.presentation.notes.components
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.akshayashokcode.notepad.core.util.TestTags
 import com.akshayashokcode.notepad.feature_note.domain.model.Note
+import com.akshayashokcode.notepad.feature_note.presentation.util.TimestampConvertor
 
 
 @Composable
@@ -33,6 +35,7 @@ fun NoteItem(
     cutCornerSize: Dp = 30.dp,
     onDeleteClick: () -> Unit
 ) {
+    val timestampConvertor= TimestampConvertor()
     Box(modifier = modifier.testTag(TestTags.NOTE_ITEM)) {
         Canvas(modifier = Modifier.matchParentSize()) {
             val clipPath = Path().apply {
@@ -67,6 +70,28 @@ fun NoteItem(
                 .padding(16.dp)
                 .padding(end = 32.dp)
         ) {
+          /*  Row(modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                 //   modifier=Modifier.fillMaxWidth(0.7f),
+                    text = note.title,
+                    style = MaterialTheme.typography.h6,
+                    color = MaterialTheme.colors.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                   // modifier=Modifier.fillMaxWidth(0.3f),
+                    text = timestampConvertor.getDateTime(note.timeStamp),
+                    style = MaterialTheme.typography.button,
+                    color = MaterialTheme.colors.onSurface,
+                    maxLines = 1,
+                    //overflow = TextOverflow.Ellipsis
+                )
+            }
+            */
+
             Text(
                 text = note.title,
                 style = MaterialTheme.typography.h6,
@@ -74,6 +99,7 @@ fun NoteItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = note.content,
