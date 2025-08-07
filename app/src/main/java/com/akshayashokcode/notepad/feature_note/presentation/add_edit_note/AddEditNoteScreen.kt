@@ -65,6 +65,12 @@ fun AddEditNoteScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier
+                    .padding(
+                        bottom = WindowInsets.navigationBars
+                            .asPaddingValues()
+                            .calculateBottomPadding()
+                    ),
                 onClick = {
                     viewModel.onEvent(AddEditNoteEvent.SaveNote)
                 },
@@ -80,6 +86,9 @@ fun AddEditNoteScreen(
                 .fillMaxSize()
                 .background(noteBackgroundAnimatable.value)
                 .padding(padding)
+                .padding(
+                    top = WindowInsets.systemBars.only(WindowInsetsSides.Top).asPaddingValues().calculateTopPadding()
+                )
                 .padding(16.dp)
         ) {
             Row(
