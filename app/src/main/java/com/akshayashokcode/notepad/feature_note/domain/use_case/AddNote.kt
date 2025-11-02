@@ -13,9 +13,7 @@ class AddNote(
         if(note.title.isBlank()){
             throw Note.InvalidNoteException("The title of the note can't be empty.")
         }
-        if(note.content.isBlank()){
-            throw Note.InvalidNoteException("The content of the note can't be empty.")
-        }
+        // Content can be empty - user might want title-only notes or quick saves
         repository.insertNote(note)
     }
 }
