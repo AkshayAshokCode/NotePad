@@ -34,7 +34,7 @@ fun TransparentHintTextFiled(
             onValueChange = onValueChange,
             singleLine = singleLine,
             textStyle = textStyle,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
+            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None),
             modifier = Modifier
                 .testTag(testTag)
                 .fillMaxWidth()
@@ -64,7 +64,7 @@ fun TransparentHintTextFiledContent(
             onValueChange = onValueChange,
             singleLine = singleLine,
             textStyle = textStyle,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.Sentences),
+            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None),
             modifier = Modifier
                 .testTag(testTag)
                 .fillMaxSize()

@@ -1,5 +1,6 @@
 package com.akshayashokcode.notepad.feature_note.presentation.add_edit_note
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -47,15 +48,27 @@ fun AddEditNoteScreen(
     }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = true){
-        viewModel.eventFlow.collectLatest {event->
-            when(event){
-                is AddEditNoteViewModel.UiEvent.ShowSnackBar->{
+    BackHandler {
+        if (titleState.text.isNotBlank() || contentState.text.isNotBlank()) {
+            if (titleState.text.isBlank() && contentState.text.isNotBlank()) {
+                viewModel.onEvent(AddEditNoteEvent.EnteredTitle("Untitled Note"))
+            }
+            viewModel.onEvent(AddEditNoteEvent.SaveNote)
+        } else {
+            navController.navigateUp()
+        }
+    }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.eventFlow.collectLatest { event ->
+            when (event) {
+                is AddEditNoteViewModel.UiEvent.ShowSnackBar -> {
                     scaffoldState.snackbarHostState.showSnackbar(
                         message = event.message
                     )
                 }
-                is AddEditNoteViewModel.UiEvent.SaveNote->{
+
+                is AddEditNoteViewModel.UiEvent.SaveNote -> {
                     navController.navigateUp()
                 }
             }
@@ -87,7 +100,8 @@ fun AddEditNoteScreen(
                 .background(noteBackgroundAnimatable.value)
                 .padding(padding)
                 .padding(
-                    top = WindowInsets.systemBars.only(WindowInsetsSides.Top).asPaddingValues().calculateTopPadding()
+                    top = WindowInsets.systemBars.only(WindowInsetsSides.Top).asPaddingValues()
+                        .calculateTopPadding()
                 )
                 .padding(16.dp)
         ) {
@@ -130,26 +144,26 @@ fun AddEditNoteScreen(
 
             TransparentHintTextFiled(
                 text = titleState.text,
-                hint =titleState.hint,
-                onValueChange ={
-                               viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
+                hint = titleState.hint,
+                onValueChange = {
+                    viewModel.onEvent(AddEditNoteEvent.EnteredTitle(it))
                 },
-                onFocusChange ={
+                onFocusChange = {
                     viewModel.onEvent(AddEditNoteEvent.ChangeTitleFocus(it))
                 },
                 isHintVisible = titleState.isHintVisible,
-                 singleLine = true,
+                singleLine = true,
                 textStyle = MaterialTheme.typography.h5,
                 testTag = TestTags.TITLE_TEXT_FIELD
             )
             Spacer(modifier = Modifier.height(16.dp))
             TransparentHintTextFiledContent(
                 text = contentState.text,
-                hint =contentState.hint,
-                onValueChange ={
+                hint = contentState.hint,
+                onValueChange = {
                     viewModel.onEvent(AddEditNoteEvent.EnteredContent(it))
                 },
-                onFocusChange ={
+                onFocusChange = {
                     viewModel.onEvent(AddEditNoteEvent.ChangeContentFocus(it))
                 },
                 isHintVisible = contentState.isHintVisible,
