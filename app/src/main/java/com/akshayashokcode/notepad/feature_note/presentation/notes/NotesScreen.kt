@@ -87,6 +87,8 @@ fun NotesScreen(
                                 .calculateBottomPadding()
                         ),
                     onClick = {
+                        // close order section when clicking FAB
+                        viewModel.onEvent(NotesEvent.CloseOrderSection)
                         navController.navigate(Screen.AddEditNoteScreen.route)
                     },
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -165,6 +167,8 @@ fun NotesScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
+                                    // close order section when clicking FAB
+                                    viewModel.onEvent(NotesEvent.CloseOrderSection)
                                     navController.navigate(
                                         Screen.AddEditNoteScreen.route +
                                                 "?noteId=${note.id}&noteColor=${note.color}"
