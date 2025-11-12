@@ -7,14 +7,14 @@ plugins {
 }
 
 android {
-    compileSdk 35
+    compileSdkVersion 36
 
     defaultConfig {
         applicationId "com.akshayashokcode.notepad"
         minSdk 24
-        targetSdk 35
-        versionCode 12
-        versionName "1.4.1"
+        targetSdk 36
+        versionCode 13
+        versionName "1.4.5"
 
         testInstrumentationRunner "com.akshayashokcode.notepad.HiltTestRunner"
         vectorDrawables {
