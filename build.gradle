@@ -8,6 +8,7 @@ plugins {
 
 ext {
     compose_version = '1.5.4'
+    compose_bom_version = '2024.12.01'
 }
 
 tasks.register('clean', Delete) {
