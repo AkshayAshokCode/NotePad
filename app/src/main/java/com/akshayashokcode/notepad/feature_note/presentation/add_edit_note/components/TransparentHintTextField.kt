@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
@@ -25,7 +25,7 @@ fun TransparentHintTextFiled(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
-    testTag:String="",
+    testTag: String = "",
     onFocusChange: (FocusState) -> Unit
 ) {
     Box(modifier = modifier) {
@@ -55,7 +55,7 @@ fun TransparentHintTextFiledContent(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
-    testTag:String="",
+    testTag: String = "",
     onFocusChange: (FocusState) -> Unit
 ) {
     Box(modifier = modifier) {

@@ -9,8 +9,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.Nullable
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -42,9 +42,10 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         checkUpdate()
     }
+
     override fun onResume() {
         super.onResume()
-        if (appUpdateManager != null) {
+        if (::appUpdateManager.isInitialized) {
             appUpdateManager
                 .appUpdateInfo
                 .addOnSuccessListener { appUpdateInfo ->
@@ -52,12 +53,13 @@ class MainActivity : ComponentActivity() {
                     // notify the user to complete the update.
                     if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                         popupSnackbarForCompleteUpdate()
-                    }else{
-                        Log.d(TAG,"State of update: ${appUpdateInfo.installStatus()}")
+                    } else {
+                        Log.d(TAG, "State of update: ${appUpdateInfo.installStatus()}")
                     }
                 }
         }
     }
+
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +70,7 @@ class MainActivity : ComponentActivity() {
             AppKeyboardFocusManager()
             NotePadTheme {
                 Surface(
-                    color = MaterialTheme.colors.background
+                    color = MaterialTheme.colorScheme.background
                 )
                 {
                     val navController = rememberNavController()
@@ -79,8 +81,9 @@ class MainActivity : ComponentActivity() {
                         composable(route = Screen.NotesScreen.route) {
                             NotesScreen(navController = navController)
                         }
-                        composable(route = Screen.AddEditNoteScreen.route +
-                                "?noteId={noteId}&noteColor={noteColor}",
+                        composable(
+                            route = Screen.AddEditNoteScreen.route +
+                                    "?noteId={noteId}&noteColor={noteColor}",
                             arguments = listOf(
                                 navArgument(
                                     name = "noteId"
@@ -175,7 +178,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
-        if (appUpdateManager != null) {
+        if (::appUpdateManager.isInitialized) {
             appUpdateManager.unregisterListener(listener)
         }
         super.onStop()

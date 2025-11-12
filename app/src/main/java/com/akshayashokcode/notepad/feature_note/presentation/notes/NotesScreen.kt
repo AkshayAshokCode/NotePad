@@ -15,30 +15,30 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Snackbar
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SnackbarResult
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -64,17 +64,19 @@ fun NotesScreen(
     viewModel: NotesViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    val scaffoldState = rememberScaffoldState()
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val animVisibleState = remember { MutableTransitionState(false) }
         .apply { targetState = true }
     val notesAvailable = state.notes.isNotEmpty()
+
     Scaffold(
         floatingActionButton = {
             AnimatedVisibility(
                 visibleState = animVisibleState,
                 enter = fadeIn(
-                    animationSpec = tween(durationMillis = 500,easing = LinearOutSlowInEasing))
+                    animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing)
+                )
                         + slideInVertically(animationSpec = tween(durationMillis = 500))
             ) {
                 FloatingActionButton(
@@ -87,30 +89,27 @@ fun NotesScreen(
                     onClick = {
                         navController.navigate(Screen.AddEditNoteScreen.route)
                     },
-                    backgroundColor = MaterialTheme.colors.primary
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    shape = CircleShape
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
                 }
             }
         },
-        scaffoldState = scaffoldState,
         snackbarHost = {
-            SnackbarHost(it) { data ->
+            SnackbarHost(hostState = snackbarHostState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    actionColor = MaterialTheme.colors.surface
+                    actionColor = MaterialTheme.colorScheme.surface
                 )
             }
         }
-    ) {
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
-                .padding(
-                    top = WindowInsets.systemBars.only(WindowInsetsSides.Top).asPaddingValues().calculateTopPadding()
-                )
-                .padding(start = 16.dp,end = 16.dp)
+                .padding(paddingValues)
+                .padding(start = 16.dp, end = 16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -120,22 +119,21 @@ fun NotesScreen(
                 Text(
                     text = "Notes",
                     style = TextStyle(
-                        color = MaterialTheme.typography.h4.color,
-                        fontStyle = MaterialTheme.typography.h4.fontStyle,
-                        fontSize = MaterialTheme.typography.h4.fontSize,
-                        fontWeight = MaterialTheme.typography.h4.fontWeight,
-                        fontFamily = customTypography.body1.fontFamily
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
+                        fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                        fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
+                        fontFamily = customTypography.bodyLarge.fontFamily
                     )
                 )
                 if (notesAvailable) {
-
                     IconButton(
                         onClick = {
                             viewModel.onEvent(NotesEvent.ToggleOrderSection)
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Sort,
+                            imageVector = Icons.AutoMirrored.Filled.Sort,
                             contentDescription = "Sort",
                         )
                     }
@@ -161,7 +159,6 @@ fun NotesScreen(
 
             if (notesAvailable) {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-
                     items(state.notes) { note ->
                         NoteItem(
                             note = note,
@@ -176,9 +173,11 @@ fun NotesScreen(
                             onDeleteClick = {
                                 viewModel.onEvent(NotesEvent.DeleteNote(note))
                                 scope.launch {
-                                    val result = scaffoldState.snackbarHostState.showSnackbar(
+                                    val result = snackbarHostState.showSnackbar(
                                         message = "Note deleted",
-                                        actionLabel = "Undo"
+                                        actionLabel = "Undo",
+                                        withDismissAction = true,
+                                        duration = SnackbarDuration.Short
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
                                         viewModel.onEvent(NotesEvent.RestoreNote)
@@ -187,11 +186,10 @@ fun NotesScreen(
                             }
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        if(state.notes.last() == note) {
+                        if (state.notes.last() == note) {
                             Spacer(modifier = Modifier.height(60.dp))
                         }
                     }
-
                 }
             } else {
                 EmptyScreenText()
