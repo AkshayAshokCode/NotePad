@@ -42,22 +42,33 @@ class NotesViewModel @Inject constructor(
                 }
                 getNotes(event.noteOrder)
             }
+
             is NotesEvent.DeleteNote -> {
                 viewModelScope.launch {
                     noteUseCases.deleteNote(event.note)
                     recentlyDeletedNote = event.note
                 }
+                // close order section when clicking FAB
+                if (state.value.isOrderSectionVisible) {
+                    _state.value = state.value.copy(isOrderSectionVisible = false)
+                }
             }
+
             is NotesEvent.RestoreNote -> {
                 viewModelScope.launch {
                     noteUseCases.addNote(recentlyDeletedNote ?: return@launch)
                     recentlyDeletedNote = null
                 }
             }
+
             is NotesEvent.ToggleOrderSection -> {
                 _state.value = state.value.copy(
                     isOrderSectionVisible = !state.value.isOrderSectionVisible
                 )
+            }
+
+            is NotesEvent.CloseOrderSection -> {
+                _state.value = state.value.copy(isOrderSectionVisible = false)
             }
         }
     }
