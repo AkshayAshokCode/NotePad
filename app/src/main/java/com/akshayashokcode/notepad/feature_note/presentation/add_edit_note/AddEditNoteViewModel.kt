@@ -47,17 +47,17 @@ class AddEditNoteViewModel @Inject constructor(
             if (noteId != -1) {
                 viewModelScope.launch {
                     noteUseCases.getNote(noteId)?.also { note ->
-                        currentNoteId=note.id
-                        _noteTitle.value=noteTitle.value.copy(
+                        currentNoteId = note.id
+                        _noteTitle.value = noteTitle.value.copy(
                             text = note.title,
                             isHintVisible = false
                         )
                         //TODO
-                        _noteContent.value=noteContent.value.copy(
+                        _noteContent.value = noteContent.value.copy(
                             text = note.content,
                             isHintVisible = false
                         )
-                        _noteColor.value=note.color
+                        _noteColor.value = note.color
                     }
                 }
             }
@@ -71,6 +71,7 @@ class AddEditNoteViewModel @Inject constructor(
                     text = event.value
                 )
             }
+
             is AddEditNoteEvent.ChangeTitleFocus -> {
                 _noteTitle.value = noteTitle.value.copy(
                     isHintVisible = !event.focusState.isFocused &&
@@ -83,21 +84,24 @@ class AddEditNoteViewModel @Inject constructor(
                     text = event.value
                 )
             }
+
             is AddEditNoteEvent.ChangeContentFocus -> {
                 _noteContent.value = noteContent.value.copy(
                     isHintVisible = !event.focusState.isFocused &&
                             noteContent.value.text.isBlank()
                 )
             }
+
             is AddEditNoteEvent.ChangeColor -> {
                 _noteColor.value = event.color
             }
+
             is AddEditNoteEvent.SaveNote -> {
                 viewModelScope.launch {
                     try {
                         noteUseCases.addNote(
                             Note(
-                                title = noteTitle.value.text.trim(),
+                                title = noteTitle.value.text.trim().ifEmpty { "Untitled Note" },
                                 content = noteContent.value.text.trim(),
                                 timeStamp = System.currentTimeMillis(),
                                 color = noteColor.value,

@@ -2,15 +2,20 @@ package com.akshayashokcode.notepad.feature_note.presentation.notes
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,15 +25,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,22 +44,30 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.akshayashokcode.notepad.core.util.TestTags
+import com.akshayashokcode.notepad.feature_note.domain.model.Note
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.EmptyScreenText
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.NoteItem
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.OrderSection
 import com.akshayashokcode.notepad.feature_note.presentation.util.Screen
 import com.akshayashokcode.notepad.ui.theme.customTypography
 import kotlinx.coroutines.launch
+
+enum class FabState { Idle, Exploded }
 
 @ExperimentalAnimationApi
 @Composable
@@ -70,6 +82,12 @@ fun NotesScreen(
         .apply { targetState = true }
     val notesAvailable = state.notes.isNotEmpty()
 
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val explosionColor = remember { Note.noteColors.random() }
+    val fabSize = remember { Animatable(170f) }
+    val iconAlpha = remember { Animatable(1f) }
+    var fabState by remember { mutableStateOf(FabState.Idle) }
+
     Scaffold(
         floatingActionButton = {
             AnimatedVisibility(
@@ -77,24 +95,64 @@ fun NotesScreen(
                 enter = fadeIn(
                     animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing)
                 )
-                        + slideInVertically(animationSpec = tween(durationMillis = 500))
             ) {
-                FloatingActionButton(
+                Box(
                     modifier = Modifier
+                        .size(80.dp)
+                        .offset(x = 10.dp)
                         .padding(
                             bottom = WindowInsets.navigationBars
                                 .asPaddingValues()
                                 .calculateBottomPadding()
-                        ),
-                    onClick = {
-                        // close order section when clicking FAB
-                        viewModel.onEvent(NotesEvent.CloseOrderSection)
-                        navController.navigate(Screen.AddEditNoteScreen.route)
-                    },
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    shape = CircleShape
+                        )
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            if (fabState == FabState.Idle) {
+                                fabState = FabState.Exploded
+                                scope.launch {
+                                    // Fade out icon first
+                                    iconAlpha.animateTo(0f, tween(150))
+                                    // Then explode background
+                                    fabSize.animateTo(
+                                        targetValue = 6000f,
+                                        animationSpec = keyframes {
+                                            durationMillis = 300
+                                            170f at 0
+                                            90f at 80
+                                            6000f at 300
+                                        }
+                                    )
+
+                                    // close order section when clicking FAB
+                                    viewModel.onEvent(NotesEvent.CloseOrderSection)
+                                    navController.navigate(
+                                        Screen.AddEditNoteScreen.route +
+                                                "?noteColor=${explosionColor.toArgb()}"
+                                    )
+                                }
+                            }
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
+                    // Exploding background
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        val color =
+                            if (fabState == FabState.Exploded) explosionColor else primaryColor
+                        drawCircle(
+                            color = color,
+                            radius = fabSize.value / 2f,
+                            center = center
+                        )
+                    }
+                    // Static icon that fades out
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.alpha(iconAlpha.value)
+                    )
                 }
             }
         },
