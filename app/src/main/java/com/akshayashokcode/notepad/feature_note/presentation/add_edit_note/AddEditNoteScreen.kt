@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
@@ -84,6 +86,7 @@ fun AddEditNoteScreen(
         floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier
+                    .offset(x = (-2).dp)
                     .padding(
                         bottom = WindowInsets.navigationBars
                             .asPaddingValues()
@@ -107,15 +110,16 @@ fun AddEditNoteScreen(
                 .fillMaxSize()
                 .background(noteBackgroundAnimatable.value)
                 .padding(padding)
-                .padding(16.dp)
+                .padding(top = 16.dp, bottom = 16.dp)
         ) {
-            Row(
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(top = 8.dp, bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp)
             ) {
-                Note.noteColors.forEach { color ->
+                items(Note.noteColors) { color ->
                     val colorInt = color.toArgb()
                     Box(
                         modifier = Modifier
@@ -147,6 +151,7 @@ fun AddEditNoteScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             TransparentHintTextFiled(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 text = titleState.text,
                 hint = titleState.hint,
                 onValueChange = {
@@ -172,7 +177,8 @@ fun AddEditNoteScreen(
                 },
                 isHintVisible = contentState.isHintVisible,
                 textStyle = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.fillMaxHeight()
+                    .padding(start = 16.dp, end = 16.dp),
                 testTag = TestTags.CONTENT_TEXT_FIELD
             )
         }
