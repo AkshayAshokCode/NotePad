@@ -14,4 +14,5 @@ sealed class NotesEvent {
     data object ToggleOrderSection : NotesEvent()
     data object CloseOrderSection : NotesEvent()
     data class TogglePin(val note: Note) : NotesEvent()
+    data object ToggleLayout : NotesEvent()
 }

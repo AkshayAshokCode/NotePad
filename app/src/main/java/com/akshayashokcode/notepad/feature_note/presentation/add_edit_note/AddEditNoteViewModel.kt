@@ -49,6 +49,9 @@ class AddEditNoteViewModel @Inject constructor(
     )
     val isPinned: State<Boolean> = _isPinned
 
+    private val _noteTimestamp = mutableStateOf<Long?>(null)
+    val noteTimestamp: State<Long?> = _noteTimestamp
+
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
@@ -56,12 +59,21 @@ class AddEditNoteViewModel @Inject constructor(
     private var originalNote: Note? = null
 
     init {
+        // Pre-fill content when app opened via share intent from another app
+        savedStateHandle.get<String>("sharedContent")?.takeIf { it.isNotBlank() }?.let { shared ->
+            if (savedStateHandle.get<String>(KEY_CONTENT) == null) {
+                _noteContent.value = noteContent.value.copy(text = shared, isHintVisible = false)
+                savedStateHandle[KEY_CONTENT] = shared
+            }
+        }
+
         savedStateHandle.get<Int>("noteId")?.let { noteId ->
             if (noteId != -1) {
                 currentNoteId = noteId
                 viewModelScope.launch {
                     noteUseCases.getNote(noteId)?.also { note ->
                         originalNote = note
+                        _noteTimestamp.value = note.timeStamp
                         if (savedStateHandle.get<String>(KEY_TITLE) == null) {
                             _noteTitle.value = noteTitle.value.copy(
                                 text = note.title,

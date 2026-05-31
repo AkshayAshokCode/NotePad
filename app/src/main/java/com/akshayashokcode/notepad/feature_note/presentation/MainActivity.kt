@@ -1,6 +1,8 @@
 package com.akshayashokcode.notepad.feature_note.presentation
 
+import android.content.Intent
 import android.content.IntentSender
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -63,6 +66,10 @@ class MainActivity : ComponentActivity() {
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedText = if (intent.action == Intent.ACTION_SEND && intent.type == "text/plain") {
+            intent.getStringExtra(Intent.EXTRA_TEXT)
+        } else null
+
         updateFlowResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result ->
@@ -77,6 +84,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.windowInsetsPadding(WindowInsets.ime)
                 ) {
                     val navController = rememberNavController()
+                    LaunchedEffect(Unit) {
+                        sharedText?.let { text ->
+                            navController.navigate(
+                                Screen.AddEditNoteScreen.route +
+                                        "?noteColor=-1&sharedContent=${Uri.encode(text)}"
+                            )
+                        }
+                    }
                     NavHost(
                         navController = navController,
                         startDestination = Screen.NotesScreen.route
@@ -86,7 +101,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(
                             route = Screen.AddEditNoteScreen.route +
-                                    "?noteId={noteId}&noteColor={noteColor}",
+                                    "?noteId={noteId}&noteColor={noteColor}&sharedContent={sharedContent}",
                             arguments = listOf(
                                 navArgument("noteId") {
                                     type = NavType.IntType
@@ -95,6 +110,11 @@ class MainActivity : ComponentActivity() {
                                 navArgument("noteColor") {
                                     type = NavType.IntType
                                     defaultValue = -1
+                                },
+                                navArgument("sharedContent") {
+                                    type = NavType.StringType
+                                    defaultValue = ""
+                                    nullable = true
                                 }
                             )
                         ) {
