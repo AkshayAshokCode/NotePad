@@ -92,6 +92,9 @@ class NotesViewModel @Inject constructor(
                     noteUseCases.addNote(event.note.copy(isPinned = !event.note.isPinned))
                 }
             }
+            is NotesEvent.ToggleLayout -> {
+                _state.value = state.value.copy(isGridView = !state.value.isGridView)
+            }
         }
     }
 
@@ -102,7 +105,7 @@ class NotesViewModel @Inject constructor(
             searchQuery = state.value.searchQuery,
             colorFilter = state.value.colorFilter
         ).onEach { notes ->
-            _state.value = state.value.copy(notes = notes)
+            _state.value = state.value.copy(notes = notes, isLoading = false)
         }.launchIn(viewModelScope)
     }
 }

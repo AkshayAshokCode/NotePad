@@ -9,5 +9,7 @@ data class NotesState(
     val noteOrder: NoteOrder = NoteOrder.Date(OrderType.Descending),
     val isOrderSectionVisible: Boolean = false,
     val searchQuery: String = "",
-    val colorFilter: Int? = null
+    val colorFilter: Int? = null,
+    val isLoading: Boolean = true,
+    val isGridView: Boolean = true
 )

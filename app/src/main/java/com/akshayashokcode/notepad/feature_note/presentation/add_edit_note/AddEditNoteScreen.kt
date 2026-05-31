@@ -2,6 +2,9 @@ package com.akshayashokcode.notepad.feature_note.presentation.add_edit_note
 
 import android.content.Intent
 import androidx.activity.compose.BackHandler
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -24,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -57,6 +61,7 @@ fun AddEditNoteScreen(
     val titleState = viewModel.noteTitle.value
     val contentState = viewModel.noteContent.value
     val isPinned = viewModel.isPinned.value
+    val noteTimestamp = viewModel.noteTimestamp.value
     val context = LocalContext.current
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -201,6 +206,23 @@ fun AddEditNoteScreen(
                     )
                 }
             }
+            noteTimestamp?.let { ts ->
+                val formatted = remember(ts) {
+                    SimpleDateFormat("MMM d, yyyy 'at' h:mm a", Locale.getDefault()).format(Date(ts))
+                }
+                androidx.compose.foundation.layout.Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "Modified $formatted",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = iconTint.copy(alpha = 0.5f)
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             TransparentHintTextField(

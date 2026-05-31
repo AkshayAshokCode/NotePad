@@ -19,11 +19,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.items as staggeredItems
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,8 +34,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Archive
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.automirrored.filled.ViewList
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.*
@@ -58,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.akshayashokcode.notepad.core.util.TestTags
+import com.akshayashokcode.notepad.feature_note.domain.model.Note
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.EmptyScreenText
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.NoteItem
 import com.akshayashokcode.notepad.feature_note.presentation.notes.components.OrderSection
@@ -191,6 +195,12 @@ fun NotesScreen(
                             Icon(Icons.Outlined.Inventory2, contentDescription = "View archive")
                         }
                         if (notesAvailable) {
+                            IconButton(onClick = { viewModel.onEvent(NotesEvent.ToggleLayout) }) {
+                                Icon(
+                                    imageVector = if (state.isGridView) Icons.AutoMirrored.Filled.ViewList else Icons.Default.GridView,
+                                    contentDescription = if (state.isGridView) "Switch to list view" else "Switch to grid view"
+                                )
+                            }
                             IconButton(onClick = { viewModel.onEvent(NotesEvent.ToggleOrderSection) }) {
                                 Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort notes")
                             }
@@ -284,123 +294,131 @@ fun NotesScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             when {
+                state.isLoading -> Unit
                 notesAvailable -> {
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 120.dp),
-                        verticalItemSpacing = 8.dp,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            items = state.notes,
-                            key = { note -> note.id ?: note.hashCode() }
-                        ) { note ->
-                            var menuExpanded by remember { mutableStateOf(false) }
-
-                            Box {
-                                NoteItem(
-                                    note = note,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .combinedClickable(
-                                            onClick = {
-                                                if (navController.currentBackStackEntry
-                                                        ?.lifecycle?.currentState == Lifecycle.State.RESUMED
-                                                ) {
-                                                    viewModel.onEvent(NotesEvent.CloseOrderSection)
-                                                    navController.navigate(
-                                                        Screen.AddEditNoteScreen.route +
-                                                                "?noteId=${note.id}&noteColor=${note.color}"
-                                                    )
-                                                }
-                                            },
-                                            onLongClick = {
-                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                                menuExpanded = true
+                    val noteItem: @Composable (Note) -> Unit = { note ->
+                        var menuExpanded by remember { mutableStateOf(false) }
+                        Box {
+                            NoteItem(
+                                note = note,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .combinedClickable(
+                                        onClick = {
+                                            if (navController.currentBackStackEntry
+                                                    ?.lifecycle?.currentState == Lifecycle.State.RESUMED
+                                            ) {
+                                                viewModel.onEvent(NotesEvent.CloseOrderSection)
+                                                navController.navigate(
+                                                    Screen.AddEditNoteScreen.route +
+                                                            "?noteId=${note.id}&noteColor=${note.color}"
+                                                )
                                             }
-                                        )
+                                        },
+                                        onLongClick = {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            menuExpanded = true
+                                        }
+                                    )
+                            )
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }
+                            ) {
+                                val menuContentColor = MaterialTheme.colorScheme.onBackground
+                                val menuItemColors = MenuDefaults.itemColors(
+                                    textColor = menuContentColor,
+                                    leadingIconColor = menuContentColor
                                 )
-
-                                DropdownMenu(
-                                    expanded = menuExpanded,
-                                    onDismissRequest = { menuExpanded = false }
-                                ) {
-                                    val menuContentColor = MaterialTheme.colorScheme.onBackground
-                                    val menuItemColors = MenuDefaults.itemColors(
-                                        textColor = menuContentColor,
-                                        leadingIconColor = menuContentColor
-                                    )
-
-                                    DropdownMenuItem(
-                                        text = { Text(if (note.isPinned) "Unpin" else "Pin") },
-                                        leadingIcon = {
-                                            Icon(
-                                                imageVector = if (note.isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
-                                                contentDescription = null
+                                DropdownMenuItem(
+                                    text = { Text(if (note.isPinned) "Unpin" else "Pin") },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = if (note.isPinned) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                                            contentDescription = null
+                                        )
+                                    },
+                                    colors = menuItemColors,
+                                    onClick = {
+                                        menuExpanded = false
+                                        viewModel.onEvent(NotesEvent.TogglePin(note))
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Archive") },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Archive, contentDescription = null)
+                                    },
+                                    colors = menuItemColors,
+                                    onClick = {
+                                        menuExpanded = false
+                                        viewModel.onEvent(NotesEvent.ArchiveNote(note))
+                                        scope.launch {
+                                            val result = snackbarHostState.showSnackbar(
+                                                message = "Note archived",
+                                                actionLabel = "Undo",
+                                                withDismissAction = true,
+                                                duration = SnackbarDuration.Long
                                             )
-                                        },
-                                        colors = menuItemColors,
-                                        onClick = {
-                                            menuExpanded = false
-                                            viewModel.onEvent(NotesEvent.TogglePin(note))
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("Archive") },
-                                        leadingIcon = {
-                                            Icon(Icons.Default.Archive, contentDescription = null)
-                                        },
-                                        colors = menuItemColors,
-                                        onClick = {
-                                            menuExpanded = false
-                                            viewModel.onEvent(NotesEvent.ArchiveNote(note))
-                                            scope.launch {
-                                                val result = snackbarHostState.showSnackbar(
-                                                    message = "Note archived",
-                                                    actionLabel = "Undo",
-                                                    withDismissAction = true,
-                                                    duration = SnackbarDuration.Long
-                                                )
-                                                if (result == SnackbarResult.ActionPerformed) {
-                                                    viewModel.onEvent(NotesEvent.UndoArchive)
-                                                }
+                                            if (result == SnackbarResult.ActionPerformed) {
+                                                viewModel.onEvent(NotesEvent.UndoArchive)
                                             }
                                         }
-                                    )
-                                    HorizontalDivider()
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                "Delete",
-                                                color = MaterialTheme.colorScheme.error
+                                    }
+                                )
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = { Text("Delete", color = MaterialTheme.colorScheme.error) },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    },
+                                    onClick = {
+                                        menuExpanded = false
+                                        viewModel.onEvent(NotesEvent.DeleteNote(note))
+                                        scope.launch {
+                                            val result = snackbarHostState.showSnackbar(
+                                                message = "Note deleted",
+                                                actionLabel = "Undo",
+                                                withDismissAction = true,
+                                                duration = SnackbarDuration.Long
                                             )
-                                        },
-                                        leadingIcon = {
-                                            Icon(
-                                                Icons.Default.Delete,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.error
-                                            )
-                                        },
-                                        onClick = {
-                                            menuExpanded = false
-                                            viewModel.onEvent(NotesEvent.DeleteNote(note))
-                                            scope.launch {
-                                                val result = snackbarHostState.showSnackbar(
-                                                    message = "Note deleted",
-                                                    actionLabel = "Undo",
-                                                    withDismissAction = true,
-                                                    duration = SnackbarDuration.Long
-                                                )
-                                                if (result == SnackbarResult.ActionPerformed) {
-                                                    viewModel.onEvent(NotesEvent.RestoreNote)
-                                                }
+                                            if (result == SnackbarResult.ActionPerformed) {
+                                                viewModel.onEvent(NotesEvent.RestoreNote)
                                             }
                                         }
-                                    )
-                                }
+                                    }
+                                )
                             }
+                        }
+                    }
+
+                    if (state.isGridView) {
+                        LazyVerticalStaggeredGrid(
+                            columns = StaggeredGridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 120.dp),
+                            verticalItemSpacing = 8.dp,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            staggeredItems(
+                                items = state.notes,
+                                key = { note -> note.id ?: note.hashCode() }
+                            ) { note -> noteItem(note) }
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 120.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = state.notes,
+                                key = { note -> note.id ?: note.hashCode() }
+                            ) { note -> noteItem(note) }
                         }
                     }
                 }
