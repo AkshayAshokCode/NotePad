@@ -5,7 +5,9 @@ import com.akshayashokcode.notepad.feature_note.domain.util.NoteOrder
 import com.akshayashokcode.notepad.feature_note.domain.util.OrderType
 
 data class NotesState(
-    val notes:List<Note> = emptyList(),
-    val noteOrder: NoteOrder=NoteOrder.Date(OrderType.Descending),
-    val isOrderSectionVisible:Boolean=false
+    val notes: List<Note> = emptyList(),
+    val noteOrder: NoteOrder = NoteOrder.Date(OrderType.Descending),
+    val isOrderSectionVisible: Boolean = false,
+    val searchQuery: String = "",
+    val colorFilter: Int? = null
 )
