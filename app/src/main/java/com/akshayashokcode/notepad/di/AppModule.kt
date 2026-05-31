@@ -18,28 +18,33 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideNoteDatabase(app:Application):NoteDataBase{
+    fun provideNoteDatabase(app: Application): NoteDataBase {
         return Room.databaseBuilder(
             app,
             NoteDataBase::class.java,
             NoteDataBase.DATABASE_NAME
-        ).build()
+        )
+            .addMigrations(NoteDataBase.MIGRATION_1_2)
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideNoteRepository(db:NoteDataBase):NoteRepository{
+    fun provideNoteRepository(db: NoteDataBase): NoteRepository {
         return NoteRepositoryImpl(db.noteDao)
     }
 
     @Provides
     @Singleton
-    fun provideNoteUseCases(repository: NoteRepository):NoteUseCases{
+    fun provideNoteUseCases(repository: NoteRepository): NoteUseCases {
         return NoteUseCases(
             getNotes = GetNotes(repository),
             deleteNote = DeleteNote(repository),
             addNote = AddNote(repository),
-            getNote = GetNote(repository)
+            getNote = GetNote(repository),
+            archiveNote = ArchiveNote(repository),
+            unarchiveNote = UnarchiveNote(repository),
+            getArchivedNotes = GetArchivedNotes(repository)
         )
     }
 }

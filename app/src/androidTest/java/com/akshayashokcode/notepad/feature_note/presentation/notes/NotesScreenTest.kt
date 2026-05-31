@@ -49,22 +49,14 @@ class NotesScreenTest {
 
     @Test
     fun clickToggleOrderSection_isVisible() {
-        for(i in 1..3) {
-            // Click on FAB to get to add note screen
-            composeRule.onNodeWithContentDescription("Add").performClick()
-
-            // Enter texts in title and content text fields
-            composeRule
-                .onNodeWithTag(TestTags.TITLE_TEXT_FIELD)
-                .performTextInput(i.toString())
-            composeRule
-                .onNodeWithTag(TestTags.CONTENT_TEXT_FIELD)
-                .performTextInput(i.toString())
-            // Save the new
-            composeRule.onNodeWithContentDescription("Save").performClick()
+        for (i in 1..3) {
+            composeRule.onNodeWithContentDescription("Add new note").performClick()
+            composeRule.onNodeWithTag(TestTags.TITLE_TEXT_FIELD).performTextInput(i.toString())
+            composeRule.onNodeWithTag(TestTags.CONTENT_TEXT_FIELD).performTextInput(i.toString())
+            composeRule.onNodeWithContentDescription("Save note").performClick()
         }
         composeRule.onNodeWithTag(TestTags.ORDER_SECTION).assertDoesNotExist()
-        composeRule.onNodeWithContentDescription("Sort").performClick()
+        composeRule.onNodeWithContentDescription("Sort notes").performClick()
         composeRule.onNodeWithTag(TestTags.ORDER_SECTION).assertIsDisplayed()
     }
 }

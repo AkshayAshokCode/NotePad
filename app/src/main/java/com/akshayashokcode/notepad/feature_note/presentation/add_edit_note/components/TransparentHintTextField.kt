@@ -15,9 +15,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 
-
 @Composable
-fun TransparentHintTextFiled(
+fun TransparentHintTextField(
     text: String,
     hint: String,
     modifier: Modifier = Modifier,
@@ -25,6 +24,8 @@ fun TransparentHintTextFiled(
     onValueChange: (String) -> Unit,
     textStyle: TextStyle = TextStyle(),
     singleLine: Boolean = false,
+    expandToFillHeight: Boolean = false,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.Sentences,
     testTag: String = "",
     onFocusChange: (FocusState) -> Unit
 ) {
@@ -34,44 +35,14 @@ fun TransparentHintTextFiled(
             onValueChange = onValueChange,
             singleLine = singleLine,
             textStyle = textStyle,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None),
+            keyboardOptions = KeyboardOptions.Default.copy(capitalization = capitalization),
             modifier = Modifier
                 .testTag(testTag)
-                .fillMaxWidth()
+                .then(if (expandToFillHeight) Modifier.fillMaxSize() else Modifier.fillMaxWidth())
                 .onFocusChanged { onFocusChange(it) }
         )
         if (isHintVisible) {
-            Text(text = hint, style = textStyle, color = Color.DarkGray)
-        }
-    }
-}
-
-@Composable
-fun TransparentHintTextFiledContent(
-    text: String,
-    hint: String,
-    modifier: Modifier = Modifier,
-    isHintVisible: Boolean = true,
-    onValueChange: (String) -> Unit,
-    textStyle: TextStyle = TextStyle(),
-    singleLine: Boolean = false,
-    testTag: String = "",
-    onFocusChange: (FocusState) -> Unit
-) {
-    Box(modifier = modifier) {
-        BasicTextField(
-            value = text,
-            onValueChange = onValueChange,
-            singleLine = singleLine,
-            textStyle = textStyle,
-            keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None),
-            modifier = Modifier
-                .testTag(testTag)
-                .fillMaxSize()
-                .onFocusChanged { onFocusChange(it) }
-        )
-        if (isHintVisible) {
-            Text(text = hint, style = textStyle, color = Color.DarkGray)
+            Text(text = hint, style = textStyle, color = textStyle.color.copy(alpha = 0.45f))
         }
     }
 }

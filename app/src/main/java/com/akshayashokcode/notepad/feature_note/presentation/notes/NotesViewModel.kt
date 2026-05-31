@@ -24,12 +24,11 @@ class NotesViewModel @Inject constructor(
     val state: State<NotesState> = _state
 
     private var recentlyDeletedNote: Note? = null
-
+    private var recentlyArchivedNote: Note? = null
     private var getNotesJob: Job? = null
 
     init {
-        getNotes(NoteOrder.Date(OrderType.Descending))
-
+        refreshNotes()
     }
 
     fun onEvent(event: NotesEvent) {
@@ -37,52 +36,73 @@ class NotesViewModel @Inject constructor(
             is NotesEvent.Order -> {
                 if (state.value.noteOrder::class == event.noteOrder::class &&
                     state.value.noteOrder.orderType == event.noteOrder.orderType
-                ) {
-                    return
-                }
-                getNotes(event.noteOrder)
+                ) return
+                _state.value = state.value.copy(noteOrder = event.noteOrder)
+                refreshNotes()
             }
-
             is NotesEvent.DeleteNote -> {
                 viewModelScope.launch {
                     noteUseCases.deleteNote(event.note)
                     recentlyDeletedNote = event.note
                 }
-                // close order section when clicking FAB
                 if (state.value.isOrderSectionVisible) {
                     _state.value = state.value.copy(isOrderSectionVisible = false)
                 }
             }
-
+            is NotesEvent.ArchiveNote -> {
+                viewModelScope.launch {
+                    noteUseCases.archiveNote(event.note)
+                    recentlyArchivedNote = event.note
+                }
+                if (state.value.isOrderSectionVisible) {
+                    _state.value = state.value.copy(isOrderSectionVisible = false)
+                }
+            }
             is NotesEvent.RestoreNote -> {
                 viewModelScope.launch {
                     noteUseCases.addNote(recentlyDeletedNote ?: return@launch)
                     recentlyDeletedNote = null
                 }
             }
-
+            is NotesEvent.UndoArchive -> {
+                viewModelScope.launch {
+                    noteUseCases.unarchiveNote(recentlyArchivedNote ?: return@launch)
+                    recentlyArchivedNote = null
+                }
+            }
+            is NotesEvent.SearchQuery -> {
+                _state.value = state.value.copy(searchQuery = event.query)
+                refreshNotes()
+            }
+            is NotesEvent.FilterColor -> {
+                val newFilter = if (state.value.colorFilter == event.color) null else event.color
+                _state.value = state.value.copy(colorFilter = newFilter)
+                refreshNotes()
+            }
             is NotesEvent.ToggleOrderSection -> {
                 _state.value = state.value.copy(
                     isOrderSectionVisible = !state.value.isOrderSectionVisible
                 )
             }
-
             is NotesEvent.CloseOrderSection -> {
                 _state.value = state.value.copy(isOrderSectionVisible = false)
+            }
+            is NotesEvent.TogglePin -> {
+                viewModelScope.launch {
+                    noteUseCases.addNote(event.note.copy(isPinned = !event.note.isPinned))
+                }
             }
         }
     }
 
-    private fun getNotes(noteOrder: NoteOrder) {
+    private fun refreshNotes() {
         getNotesJob?.cancel()
-        getNotesJob = noteUseCases.getNotes(noteOrder)
-            .onEach { notes ->
-                _state.value = state.value.copy(
-                    notes = notes,
-                    noteOrder = noteOrder
-                )
-            }
-            .launchIn(viewModelScope)
-
+        getNotesJob = noteUseCases.getNotes(
+            noteOrder = state.value.noteOrder,
+            searchQuery = state.value.searchQuery,
+            colorFilter = state.value.colorFilter
+        ).onEach { notes ->
+            _state.value = state.value.copy(notes = notes)
+        }.launchIn(viewModelScope)
     }
 }
